@@ -1,0 +1,7 @@
+.idea/
+
+input_puzzles/
+
+*/__pycache__
+
+.python-version
