@@ -1,28 +1,31 @@
 #!/usr/bin/env python3
 
 import common
-from enum import Enum, auto
-from collections import Counter
-import numpy
-from common import numpy_matrix
+
+
+def count_wining_numbers(card):
+    wining, my = card.split("|")
+    return len(set(wining.split()) & set(my.split()))
 
 
 def do_task1(lines):
     list_of_values = [line.split(":")[1] for line in lines]
     points = []
-    for values in list_of_values:
-        wining, my = values.split("|")
-        wining = set(wining.split())
-        my = set(my.split())
-        my_wining = wining & my
-        my_wining_count = len(my_wining)
-        if my_wining_count > 0:
-            points.append(2 ** (my_wining_count - 1))
+    for card in list_of_values:
+        won_count = count_wining_numbers(card)
+        if won_count > 0:
+            points.append(2 ** (won_count - 1))
     return sum(points)
 
 
 def do_task2(lines):
-    pass
+    list_of_values = [line.split(":")[1] for line in lines]
+    instances = [1] * len(lines)
+    for i, card in enumerate(list_of_values):
+        won_count = count_wining_numbers(card)
+        for j in range(won_count):
+            instances[i + j + 1] += instances[i]
+    return sum(instances)
 
 
 input_lines = common.init_day(4)
