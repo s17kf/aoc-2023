@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 
 import common
-from enum import Enum, auto
-from collections import Counter
-import numpy
-from common import numpy_matrix
 
 
 def get_next_sequence(sequence):
@@ -21,30 +17,49 @@ def contains_zeros_only(sequence):
     return True
 
 
-def find_next_number(line: str):
-    sequence = [int(number) for number in line.split()]
-    sequences = [sequence]
+def generate_helper_sequences(first_sequence):
+    sequences = [first_sequence]
     while not contains_zeros_only(sequences[-1]):
         sequences.append(get_next_sequence(sequences[-1]))
+    return sequences
 
-    sequences[-1].append(0)
+
+def extrapolate_sequences(sequences, new_value_function):
     for i in range(len(sequences) - 2, -1, -1):
         sequence = sequences[i]
         next_sequence = sequences[i + 1]
-        sequence.append(sequence[-1] + next_sequence[-1])
+        new_value_function(sequence, next_sequence)
 
-    return sequences[0][-1]
+
+def add_sum_to_end(sequence, next_sequence):
+    sequence.append(sequence[-1] + next_sequence[-1])
+
+
+def add_diff_to_beginning(sequence, next_sequence):
+    sequence.insert(0, sequence[0] - next_sequence[0])
+
+
+def extrapolate_line(line, new_value_function, result_getter):
+    sequence = [int(number) for number in line.split()]
+    sequences = generate_helper_sequences(sequence)
+
+    sequences[-1].append(0)
+    extrapolate_sequences(sequences, new_value_function)
+    return result_getter(sequences)
 
 
 def do_part1(lines):
     next_numbers = []
     for line in lines:
-        next_numbers.append(find_next_number(line))
+        next_numbers.append(extrapolate_line(line, add_sum_to_end, lambda sequences: sequences[0][-1]))
     return sum(next_numbers)
 
 
 def do_part2(lines):
-    return "part2"
+    prev_numbers = []
+    for line in lines:
+        prev_numbers.append(extrapolate_line(line, add_diff_to_beginning, lambda sequences: sequences[0][0]))
+    return sum(prev_numbers)
 
 
 input_lines = common.init_day(9)
